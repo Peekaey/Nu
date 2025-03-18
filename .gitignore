@@ -1,0 +1,32 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.idea/
+
+
+# Logs
+Nu-Web/logs
+Nu-Web/*.log
+Nu-Web/npm-debug.log*
+Nu-Web/yarn-debug.log*
+Nu-Web/yarn-error.log*
+Nu-Web/pnpm-debug.log*
+Nu-Web/lerna-debug.log*
+
+Nu-Web/node_modules
+Nu-Web/dist
+Nu-Web/dist-ssr
+Nu-Web/*.local
+
+# Editor directories and files
+Nu-Web/.vscode/*
+Nu-Web/!.vscode/extensions.json
+Nu-Web/.idea
+Nu-Web/.DS_Store
+Nu-Web/*.suo
+Nu-Web/*.ntvs*
+Nu-Web/*.njsproj
+Nu-Web/*.sln
+Nu-Web/*.sw?

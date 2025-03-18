@@ -1,0 +1,6 @@
+@Nu_Apis_HostAddress = http://localhost:5234
+
+GET {{Nu_Apis_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+﻿services:
+  nu-apis:
+    image: nu-apis
+    build:
+      context: .
+      dockerfile: Nu-Apis/Dockerfile
