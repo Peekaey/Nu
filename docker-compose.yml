@@ -1,0 +1,28 @@
+﻿version: '3.8'
+services:
+  nu-apis:
+    container_name: nu_apis
+    build:
+      context: .
+      dockerfile: Nu-Apis/Dockerfile
+    ports:
+      - "5000:80"        # Map API port; adjust as needed.
+      - "9229:9229"      # (Optional) Expose debugging port if you enable remote debugging for .NET.
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./Nu-Apis:/app  # Mount the API source for live updates if desired.
+  
+  nu-web:
+    container_name: nu_web
+    build:
+      context: .
+      dockerfile: Nu-Web/Dockerfile
+    ports:
+      - "5173:5173"     # Vite default development server port.
+      - "9222:9222"     # (Optional) If you want to enable Node debugging.
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./Nu-Web:/app   # Mount the React app source for hot reloading.
+      - /app/node_modules  # Use an anonymous volume for node_modules
