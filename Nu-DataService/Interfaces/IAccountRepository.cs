@@ -12,5 +12,5 @@ public interface IAccountRepository
     void Remove(Account account);
     void Update(Account account);
     Account Get(int id);
-
+    Account? GetByAccountUsername(string username);
 }

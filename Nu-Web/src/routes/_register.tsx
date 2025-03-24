@@ -1,16 +1,17 @@
 import {ModeToggle} from "@/components/mode-toggle.tsx";
-
 import {useForm} from "react-hook-form";
 import { z } from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
-
 import { Button } from "@/components/ui/button"
 import {Form, FormControl, FormField, FormItem, FormMessage,} from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import {SendUserRegistrationRequest} from "@/utilities/api-manager.ts";
-
+import { toast } from "sonner"
+import { useNavigate } from "react-router";
 
 const formSchema = z.object({
+    // TODO Add Client Side SQL Injection Protection
+    // TODO Add Second Confirm Password Field
     username: z.string().email({
         message: "Please enter a valid email address"
     }).max(50, {
@@ -26,6 +27,8 @@ const formSchema = z.object({
 
 export function RegisterPage() {
 
+    const navigate = useNavigate();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -34,18 +37,36 @@ export function RegisterPage() {
         }
     })
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         const userRegistrationRequest = {
             Email: values.username, // Map username (which is validated as email) to Email
             Password: values.password
         }
-        SendUserRegistrationRequest(userRegistrationRequest);
+        try {
+            const response = await SendUserRegistrationRequest(userRegistrationRequest);
+
+            if (response.status === 200) {
+                toast("Account Created Successfully! Redirecting To Login Page...");
+                navigate("/login");
+            } else if (response.status === 409) {
+                toast("An account with that email address already exists. Please try again with a different email address.");
+            } else {
+                toast("An error occurred while creating your account. Please try again later.");
+
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     return (
         <div className="h-screen flex flex-col dark:bg-black-500">
-            <div id="header" className="text-right p-1">
-                <ModeToggle />
+            <div id="header" >
+                <div className="text-center">
+                </div>
+                <div className="text-right mt-4 mr-2">
+                    <ModeToggle />
+                </div>
             </div>
             <div id="center" className="flex flex-grow">
                 <div className="m-auto">
@@ -84,7 +105,7 @@ export function RegisterPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <div id="submit-button" className="mt-4">
+                                <div id="submit-button cursor-pointer" className="mt-4">
                                     <Button type="submit">Create Account</Button>
                                 </div>
                             </div>

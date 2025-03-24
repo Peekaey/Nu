@@ -62,5 +62,10 @@ public class AccountRepository : IAccountRepository
         return _context.Accounts.FirstOrDefault(x => x.Id == id);
     }
     
+    public Account? GetByAccountUsername(string username)
+    {
+        return _context.Accounts.FirstOrDefault(x => x.UserName == username);
+    }
+    
 
 }

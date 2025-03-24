@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Nu_DataService.Interfaces;
+using Nu_Models.DatabaseModels;
 using Nu_Models.DTOs;
 using Nu_Models.Results;
 
@@ -32,5 +33,10 @@ public class AccountService : IAccountService
         }
         
         return ServiceResult.AsSuccess();
+    }
+    
+    public Account? GetAccountByUsername(string username)
+    {
+        return _unitOfWork.AccountRepository.GetByAccountUsername(username);
     }
 }
