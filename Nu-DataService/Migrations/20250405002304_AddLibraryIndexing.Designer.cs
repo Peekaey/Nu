@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nu_DataService;
@@ -11,9 +12,11 @@ using Nu_DataService;
 namespace Nu_DataService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250405002304_AddLibraryIndexing")]
+    partial class AddLibraryIndexing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,15 +104,10 @@ namespace Nu_DataService.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("ParentFolderId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("SystemCreationTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParentFolderId");
 
                     b.ToTable("LibraryFileIndexes");
                 });
@@ -122,9 +120,6 @@ namespace Nu_DataService.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("FolderLevel")
                         .HasColumnType("integer");
 
@@ -132,12 +127,9 @@ namespace Nu_DataService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FolderPath")
+                    b.Property<string>("FolderPathAfterRoot")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("ParentFolderId")
                         .HasColumnType("integer");
@@ -210,15 +202,6 @@ namespace Nu_DataService.Migrations
                     b.ToTable("UserProfilePictures");
                 });
 
-            modelBuilder.Entity("Nu_Models.DatabaseModels.LibraryFileIndex", b =>
-                {
-                    b.HasOne("Nu_Models.DatabaseModels.LibraryFolderIndex", "ParentFolder")
-                        .WithMany("LibraryFiles")
-                        .HasForeignKey("ParentFolderId");
-
-                    b.Navigation("ParentFolder");
-                });
-
             modelBuilder.Entity("Nu_Models.DatabaseModels.LibraryFolderIndex", b =>
                 {
                     b.HasOne("Nu_Models.DatabaseModels.LibraryFolderIndex", "ParentFolder")
@@ -248,8 +231,6 @@ namespace Nu_DataService.Migrations
             modelBuilder.Entity("Nu_Models.DatabaseModels.LibraryFolderIndex", b =>
                 {
                     b.Navigation("ChildFolders");
-
-                    b.Navigation("LibraryFiles");
                 });
 #pragma warning restore 612, 618
         }

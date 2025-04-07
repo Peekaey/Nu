@@ -8,6 +8,8 @@ using Nu_Apis.Helpers;
 using Nu_Apis.Interfaces;
 using Nu_BusinessService.Interfaces;
 using Nu_BusinessService.Services;
+using Nu_Cache.Interfaces;
+using Nu_Cache.Services;
 using Nu_DataService;
 using Nu_DataService.Interfaces;
 using Nu_DataService.Repositories;
@@ -62,13 +64,31 @@ public class Program
         }
         
         // Disable to fix cors redirection for local
-        app.UseHttpsRedirection();
+        // app.UseHttpsRedirection();
 
         app.UseCors("AllowFrontend");
 
         app.UseAuthorization();
 
         app.MapControllers();
+
+        var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+        lifetime.ApplicationStarted.Register(async void () =>
+        {
+            try
+            {
+                using (var scope = app.Services.CreateScope())
+                {
+                    var backgroundService = scope.ServiceProvider.GetRequiredService<IBackgroundOrchestratorService>();
+                    await backgroundService.IndexLibraryContents("");
+                    Console.WriteLine("Library contents indexed successfully");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unable to Index Library During Application Startup: ", e.InnerException);
+            }
+        });
     }
 
     private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
@@ -100,7 +120,7 @@ public class Program
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:5174")
+                policy.WithOrigins("http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowCredentials()
                     .AllowAnyMethod();
@@ -131,6 +151,8 @@ public class Program
         services.AddSingleton<IUserProfilePictureService, UserProfilePictureService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddSingleton<IAuthenticationBusinessService, AuthenticationBusinessService>();
+        services.AddSingleton<IBackgroundFolderService, BackgroundFolderService>();
+        services.AddSingleton<IBackgroundFileService, BackgroundFileService>();
         
         services.AddSingleton<JwtConfig>(sp =>
         {
@@ -143,7 +165,11 @@ public class Program
         services.AddScoped<IAccountRepository, AccountRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
         services.AddScoped<IUserProfilePictureRepository, UserProfilePictureRepository>();
+        services.AddScoped<ILibraryFolderIndexRepository, LibraryFolderIndexRepository>();
+        services.AddScoped<ILibraryFileIndexRepository, LibraryFileIndexRepository>();
         services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IIndexingService, IndexingService>();
+        services.AddScoped<IBackgroundOrchestratorService, BackgroundOrchestratorService>();
         services.AddScoped<IAccountBusinessService, AccountBusinessService>();
         
         // Treats all controllers like services and validates their dependencies

@@ -21,4 +21,13 @@
         <Link>.dockerignore</Link>
       </Content>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Helpers\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Nu-DataService\Nu-DataService.csproj" />
+      <ProjectReference Include="..\Nu-Models\Nu-Models.csproj" />
+    </ItemGroup>
 </Project>

@@ -30,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Nu-BackgroundService\Nu-BackgroundService.csproj" />
       <ProjectReference Include="..\Nu-BusinessService\Nu-BusinessService.csproj" />
       <ProjectReference Include="..\Nu-Models\Nu-Models.csproj" />
     </ItemGroup>

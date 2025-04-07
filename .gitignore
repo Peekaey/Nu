@@ -30,3 +30,5 @@ Nu-Web/*.ntvs*
 Nu-Web/*.njsproj
 Nu-Web/*.sln
 Nu-Web/*.sw?
+
+.vs/
