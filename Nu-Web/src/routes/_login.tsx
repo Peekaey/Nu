@@ -40,9 +40,20 @@ export function LoginPage() {
             if (response.status === 200) {
                 toast("Login Successful! Redirecting To Library...");
                 navigate("/library");
-            } else {
+            }
+
+            if (response.status === 401) {
+                toast("Invalid username or password. Please try again.");
+            }
+
+            if (response.status === 400) {
+                toast("Invalid inputs. Please check your username and password.");
+            }
+
+            if (response.status === 500) {
                 toast("An error occurred while authenticating with the system. Please try again later.");
             }
+
         } catch (error) {
             console.error(error);
         }

@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input"
 import {Search} from "lucide-react";
 import {ModeToggle} from "@/components/mode-toggle.tsx";
 import {SidebarTrigger} from "@/components/ui/sidebar-trigger.tsx";
+import {ImageCard} from "@/components/image-card.tsx";
 
 export function LibraryPage() {
     return (
@@ -21,6 +22,8 @@ export function LibraryPage() {
                 <div className="w-1/4 flex justify-end mr-4">
                     <ModeToggle  />
                 </div>
+            </div>
+            <div id="library-body-content" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-6 gap-4 p-4">
             </div>
         </div>
     )
