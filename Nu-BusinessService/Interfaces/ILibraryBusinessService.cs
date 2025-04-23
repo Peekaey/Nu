@@ -1,0 +1,13 @@
+﻿using Nu_Models;
+using Nu_Models.DTOs;
+
+namespace Nu_BusinessService.Interfaces;
+
+public interface ILibraryBusinessService
+{
+    List<LibraryAlbumDTO> GetAllFolders();
+    List<LibraryImageDTO> GetLibraryFolderImageContent(int id);
+    LibraryFolderContentsDTO GetLibraryRootContents();
+    LibraryFolderContentsDTO GetLibraryFolderContents(int id);
+    string GetRootFolderPath();
+}

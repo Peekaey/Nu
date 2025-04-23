@@ -11,7 +11,6 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
     private readonly IBackgroundFolderService _backgroundFolderService;
     private readonly IIndexingService _indexingService;
     private readonly ILogger<BackgroundOrchestratorService> _logger;
-    private readonly string filePath = "";
 
     public BackgroundOrchestratorService(IBackgroundFileService backgroundFileService, IBackgroundFolderService backgroundFolderService,
         IIndexingService indexingService, ILogger<BackgroundOrchestratorService> logger)
@@ -24,7 +23,6 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
 
     public async Task<ServiceResult> IndexLibraryContents(string rootFolderPath)
     {
-        rootFolderPath = filePath;
         var folderExists = _backgroundFolderService.FolderExists(rootFolderPath);
 
         if (folderExists == false)
@@ -32,19 +30,19 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
             return ServiceResult.AsFailure("Root Folder Does Not Exist");
         }
         
-        var filesResult = await _backgroundFileService.GetParentStorageFiles(filePath);
-        if (filesResult.Success == false)
-        {
-            return ServiceResult.AsFailure(filesResult.Error);
-        }
-
-        var foldersResult = _backgroundFolderService.GetStorageFolders(filePath);
+        var foldersResult = _backgroundFolderService.GetStorageFolders(rootFolderPath);
 
         if (foldersResult.Success == false)
         {
             return ServiceResult.AsFailure(foldersResult.Error);
         }
 
+        var filesResult = await _backgroundFileService.GetParentStorageFiles(rootFolderPath);
+        if (filesResult.Success == false)
+        {
+            return ServiceResult.AsFailure(filesResult.Error);
+        }
+        
         var updateIndexResult = _indexingService.IndexLibraryContents(foldersResult.Folders, filesResult.Files);
         
         if (updateIndexResult.Success == false)
@@ -53,7 +51,6 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
         }
         
         return ServiceResult.AsSuccess();
-        
         
     }
 

@@ -78,4 +78,24 @@ public class LibraryFolderIndexRepository : ILibraryFolderIndexRepository
     {
         return _context.LibraryFolderIndexes.ToList();
     }
+    
+    public LibraryFolderIndex? GetLibraryRootFolder()
+    {
+        return _context.LibraryFolderIndexes.Where(x => x.ParentFolderId == null)
+            .Include(cf => cf.ChildFolders)
+            .Include(cf => cf.LibraryFiles)
+            .FirstOrDefault();
+    }
+
+    public LibraryFolderIndex? GetLibraryFolderWithChildren(int id)
+    {
+        var folder =_context.LibraryFolderIndexes
+            .Include(x => x.ChildFolders)
+            .Include(x => x.LibraryFiles)
+            .FirstOrDefault(x => x.Id == id);
+        
+        return folder;
+        
+        
+    }
 }

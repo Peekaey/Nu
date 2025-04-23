@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Nu_Apis.Helpers;
 using Nu_Apis.Interfaces;
+using Nu_BusinessService;
 using Nu_BusinessService.Interfaces;
 using Nu_BusinessService.Services;
 using Nu_Cache.Interfaces;
@@ -24,14 +26,27 @@ public class Program
     {
 
         var postgresConnectionString = Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING");
-
+        var rootFolderPath = "";
         if (string.IsNullOrEmpty(postgresConnectionString))
         {
             Console.Error.WriteLineAsync("POSTGRES_CONNECTION_STRING environment variable is not set.");
             throw new InvalidOperationException("POSTGRES_CONNECTION_STRING environment variable is not set.");
         }
+        
+        if (string.IsNullOrEmpty(rootFolderPath))
+        {
+            Console.Error.WriteLineAsync("Root folder path is not set.");
+            throw new InvalidOperationException("Root folder path is not set.");
+        }
+        
 
         var builder = WebApplication.CreateBuilder(args);
+        
+        // Debug Local Environment Only
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(5000); 
+        });
         var configuration = builder.Configuration;
 
         // Validates scopes and services
@@ -41,20 +56,22 @@ public class Program
             options.ValidateScopes = true;
             options.ValidateOnBuild = true;
         });
-        ConfigureHostServices(builder.Services, configuration);
+        ConfigureHostServices(builder.Services, configuration,rootFolderPath);
         ConfigureAuthentication(builder.Services, configuration);
         ConfigureDatabaseService(builder.Services, postgresConnectionString);
         var app = builder.Build();
         
+        // TODO Expose root folder as server static files.
+        
         // Runs Pending Migrations
         InitialiseDatabase(app);
         
-        ConfigureWebApp(app, builder);
+        ConfigureWebApp(app, builder, rootFolderPath);
         app.Run();
     }
     
 
-    private static void ConfigureWebApp(WebApplication app, WebApplicationBuilder builder)
+    private static void ConfigureWebApp(WebApplication app, WebApplicationBuilder builder, string rootFolderPath)
     {
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -77,16 +94,25 @@ public class Program
         {
             try
             {
+                // Indexing Metadata Process
                 using (var scope = app.Services.CreateScope())
                 {
                     var backgroundService = scope.ServiceProvider.GetRequiredService<IBackgroundOrchestratorService>();
-                    await backgroundService.IndexLibraryContents("");
-                    Console.WriteLine("Library contents indexed successfully");
+                    Console.WriteLine("Starting Library Indexing Process...");
+                    var indexResult = await backgroundService.IndexLibraryContents(rootFolderPath);
+                    if (indexResult.Success)
+                    {
+                        Console.WriteLine("Library Indexing Complete");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Library Indexing Failed: {indexResult.Error}");
+                    }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Unable to Index Library During Application Startup: ", e.InnerException);
+                Console.WriteLine($"Unable to Index Library During Application Startup: {e.Message} ");
             }
         });
     }
@@ -118,19 +144,29 @@ public class Program
         
         services.AddCors(options =>
         {
+            // options.AddPolicy("AllowFrontend", policy =>
+            // {
+            //     policy.WithOrigins("http://localhost:5173")
+            //         .AllowAnyHeader()
+            //         .AllowCredentials()
+            //         .AllowAnyMethod();
+            // });
+            // Debug Local Environment Only
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:5173")
+                policy
+                    .SetIsOriginAllowed(origin => true)
+                    .WithExposedHeaders("Content-Disposition")
+                    .AllowAnyMethod()
                     .AllowAnyHeader()
-                    .AllowCredentials()
-                    .AllowAnyMethod();
+                    .AllowCredentials();
             });
         });
 
         services.AddAuthorization();
     }
 
-    private static void ConfigureHostServices(IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureHostServices(IServiceCollection services, IConfiguration configuration, string rootFolderPath)
     {
         // Logging
         services.AddLogging(logging =>
@@ -153,12 +189,20 @@ public class Program
         services.AddSingleton<IAuthenticationBusinessService, AuthenticationBusinessService>();
         services.AddSingleton<IBackgroundFolderService, BackgroundFolderService>();
         services.AddSingleton<IBackgroundFileService, BackgroundFileService>();
+        services.AddSingleton<ILibraryBusinessFileService, LibraryBusinessFileService>();
         
         services.AddSingleton<JwtConfig>(sp =>
         {
             var jwtConfig = new JwtConfig();
             configuration.GetSection("JwtConfig").Bind(jwtConfig);
             return jwtConfig;
+        });
+
+        services.AddSingleton<ApplicationConfigurationSettings>(acs =>
+        {
+            var applicationConfig = new ApplicationConfigurationSettings();
+            applicationConfig.RootFolderPath = rootFolderPath;
+            return applicationConfig;
         });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -171,6 +215,9 @@ public class Program
         services.AddScoped<IIndexingService, IndexingService>();
         services.AddScoped<IBackgroundOrchestratorService, BackgroundOrchestratorService>();
         services.AddScoped<IAccountBusinessService, AccountBusinessService>();
+        services.AddScoped<ILibraryBusinessService, LibraryBusinessService>();
+        services.AddScoped<ILibraryService, LibraryService>();
+
         
         // Treats all controllers like services and validates their dependencies
         services.AddControllers().AddControllersAsServices();

@@ -39,7 +39,7 @@ export function LoginPage() {
 
             if (response.status === 200) {
                 toast("Login Successful! Redirecting To Library...");
-                navigate("/library");
+                navigate("/library/home");
             }
 
             if (response.status === 401) {

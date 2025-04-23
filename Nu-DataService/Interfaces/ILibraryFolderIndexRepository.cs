@@ -15,6 +15,7 @@ public interface ILibraryFolderIndexRepository
     Task<LibraryFolderIndex> GetAsync(int id);
     LibraryFolderIndex Get(int id);
     List<LibraryFolderIndex> GetAll();
-    
+    LibraryFolderIndex? GetLibraryRootFolder();
+    LibraryFolderIndex? GetLibraryFolderWithChildren(int id);
 
 }

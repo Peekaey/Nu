@@ -14,4 +14,5 @@ public interface ILibraryFileIndexRepository
     void Update(LibraryFileIndex fileIndex);
     Task<LibraryFileIndex> GetAsync(int id);
     LibraryFileIndex Get(int id);
+    List<LibraryFileIndex> GetAll();
 }

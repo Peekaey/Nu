@@ -73,4 +73,9 @@ public class LibraryFileIndexRepository : ILibraryFileIndexRepository
     {
         return _context.LibraryFileIndexes.FirstOrDefault(x => x.Id == id);
     }
+    
+    public List<LibraryFileIndex> GetAll()
+    {
+        return _context.LibraryFileIndexes.ToList();
+    }
 }
