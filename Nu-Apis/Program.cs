@@ -99,7 +99,7 @@ public class Program
 
         var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
         lifetime.ApplicationStarted.Register(() =>
-        
+
             // TODO Look at optimising and moving to IBackgroundService
             _ = Task.Run(async () =>
             {
@@ -127,8 +127,7 @@ public class Program
                     Console.WriteLine(
                         $"Unable to Index Library During Application Startup: {e.Message} | {e.StackTrace} ");
                 }
-            });
-        });
+            }));
     }
 
     private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
