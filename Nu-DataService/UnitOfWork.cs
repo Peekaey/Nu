@@ -14,12 +14,14 @@ public class UnitOfWork : IUnitOfWork
     public IUserProfilePictureRepository UserProfilePictureRepository { get; }
     public ILibraryFolderIndexRepository LibraryFolderIndexRepository { get; }
     public ILibraryFileIndexRepository LibraryFileIndexRepository { get; }
+    public ILibraryPreviewThumbnailIndexRepository LibraryPreviewThumbnailIndexRepository { get; }
     
     public UnitOfWork(DataContext context, ILogger<UnitOfWork> logger,
         IAccountRepository accountRepository, IUserProfileRepository userProfileRepository,
         IUserProfilePictureRepository userProfilePictureRepository,
          ILibraryFolderIndexRepository libraryFolderIndexRepository,
-        ILibraryFileIndexRepository libraryFileIndexRepository)
+        ILibraryFileIndexRepository libraryFileIndexRepository,
+        ILibraryPreviewThumbnailIndexRepository libraryPreviewThumbnailIndexRepository)
     {
         _context = context;
         _logger = logger;
@@ -29,6 +31,7 @@ public class UnitOfWork : IUnitOfWork
         UserProfilePictureRepository = userProfilePictureRepository;
         LibraryFolderIndexRepository = libraryFolderIndexRepository;
         LibraryFileIndexRepository = libraryFileIndexRepository;
+        LibraryPreviewThumbnailIndexRepository = libraryPreviewThumbnailIndexRepository;
     }
     
     public async Task<int> SaveChangesAsync()

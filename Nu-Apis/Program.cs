@@ -61,7 +61,15 @@ public class Program
         ConfigureDatabaseService(builder.Services, postgresConnectionString);
         var app = builder.Build();
         
-        // TODO Expose root folder as server static files.
+        // Expose Files on File System
+        // TODO look at protecting files with authentication if auth enabled.
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(rootFolderPath),
+            RequestPath = "/" + app.Services.GetRequiredService<ApplicationConfigurationSettings>().LastFolderName,
+            OnPrepareResponse = ctx =>
+                ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=604800")
+        });
         
         // Runs Pending Migrations
         InitialiseDatabase(app);
@@ -90,30 +98,36 @@ public class Program
         app.MapControllers();
 
         var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-        lifetime.ApplicationStarted.Register(async void () =>
-        {
-            try
+        lifetime.ApplicationStarted.Register(() =>
+        
+            // TODO Look at optimising and moving to IBackgroundService
+            _ = Task.Run(async () =>
             {
-                // Indexing Metadata Process
-                using (var scope = app.Services.CreateScope())
+                try
                 {
-                    var backgroundService = scope.ServiceProvider.GetRequiredService<IBackgroundOrchestratorService>();
-                    Console.WriteLine("Starting Library Indexing Process...");
-                    var indexResult = await backgroundService.IndexLibraryContents(rootFolderPath);
-                    if (indexResult.Success)
+                    // Indexing Metadata Process
+                    using (var scope = app.Services.CreateScope())
                     {
-                        Console.WriteLine("Library Indexing Complete");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Library Indexing Failed: {indexResult.Error}");
+                        var backgroundService =
+                            scope.ServiceProvider.GetRequiredService<IBackgroundOrchestratorService>();
+                        Console.WriteLine("Starting Library Indexing Process...");
+                        var indexResult = await backgroundService.IndexLibraryContents(rootFolderPath);
+                        if (indexResult.Success)
+                        {
+                            Console.WriteLine("Library Indexing Complete");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Library Indexing Failed: {indexResult.Error}");
+                        }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Unable to Index Library During Application Startup: {e.Message} ");
-            }
+                catch (Exception e)
+                {
+                    Console.WriteLine(
+                        $"Unable to Index Library During Application Startup: {e.Message} | {e.StackTrace} ");
+                }
+            });
         });
     }
 
@@ -190,6 +204,10 @@ public class Program
         services.AddSingleton<IBackgroundFolderService, BackgroundFolderService>();
         services.AddSingleton<IBackgroundFileService, BackgroundFileService>();
         services.AddSingleton<ILibraryBusinessFileService, LibraryBusinessFileService>();
+        services.AddSingleton<FilePathExtensions>();
+        services.AddSingleton<IFilePathExtensions, FilePathExtensions>();
+        services.AddSingleton<IBackgroundResizeService, BackgroundResizeService>();
+        services.AddSingleton<IMappingHelpers, MappingHelpers>();
         
         services.AddSingleton<JwtConfig>(sp =>
         {
@@ -211,6 +229,7 @@ public class Program
         services.AddScoped<IUserProfilePictureRepository, UserProfilePictureRepository>();
         services.AddScoped<ILibraryFolderIndexRepository, LibraryFolderIndexRepository>();
         services.AddScoped<ILibraryFileIndexRepository, LibraryFileIndexRepository>();
+        services.AddScoped<ILibraryPreviewThumbnailIndexRepository, LibraryPreviewThumbnailIndexRepository>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IIndexingService, IndexingService>();
         services.AddScoped<IBackgroundOrchestratorService, BackgroundOrchestratorService>();

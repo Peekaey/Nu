@@ -12,7 +12,7 @@ import {NoContentsAlert} from "@/components/no-contents-alert.tsx";
 export function LibraryHomePage() {
     const [files, setFiles] = useState<LibraryFolderFilesResponseDTO[]>([]);
     const [folders, setFolders] = useState<LibraryAlbumsResponseDTO[]>([]);
-    const [loading, setLoading] = useState(true); // Add loading state
+    const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
 
@@ -23,7 +23,6 @@ export function LibraryHomePage() {
         async function fetchFolderContents() {
             try {
                 const response = await GetRootLibraryContents();
-                console.log("Full Response:", response);
                 setFolders(response.data.folders);
                 setFiles(response.data.files);
             } catch (error) {
@@ -60,7 +59,8 @@ export function LibraryHomePage() {
                 {files.map((file, index) => (
                     <ImageCard
                         key={index}
-                        src={file.imageData}
+                        id={file.id}
+                        src={file.serverImagePath}
                         alt={"Image"}
                         title={file.fileName || "Untitled"}
                         description={file.filePath || "No description available"}

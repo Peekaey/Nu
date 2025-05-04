@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
+﻿
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Nu_Apis.Interfaces;
 using Nu_BusinessService.Interfaces;
@@ -10,11 +10,11 @@ namespace Nu_Apis.Controllers;
 [Route("api/v1/[controller]")]
 public class FolderController :ControllerBase
 {
-    private readonly ILogger<AuthController> _logger;
+    private readonly ILogger<FolderController> _logger;
     private readonly IApiRequestValidationHelpers _apiRequestValidationHelpers;
     private readonly ILibraryBusinessService _libraryBusinessService;
     
-    public FolderController(ILogger<AuthController> logger, IApiRequestValidationHelpers apiRequestValidationHelpers,
+    public FolderController(ILogger<FolderController> logger, IApiRequestValidationHelpers apiRequestValidationHelpers,
         ILibraryBusinessService libraryBusinessService)
     {
         _logger = logger;

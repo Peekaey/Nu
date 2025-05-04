@@ -7,6 +7,7 @@ public interface IUnitOfWork
     IUserProfilePictureRepository UserProfilePictureRepository { get; }
     ILibraryFolderIndexRepository LibraryFolderIndexRepository { get; }
     ILibraryFileIndexRepository LibraryFileIndexRepository { get; }
+    ILibraryPreviewThumbnailIndexRepository LibraryPreviewThumbnailIndexRepository { get; }
     Task<int> SaveChangesAsync();
     void SaveChanges();
     

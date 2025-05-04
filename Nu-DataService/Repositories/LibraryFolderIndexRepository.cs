@@ -96,6 +96,12 @@ public class LibraryFolderIndexRepository : ILibraryFolderIndexRepository
         
         return folder;
         
-        
+    }
+
+    public IList<LibraryFolderIndex> GetFoldersByFolderName(List<string> folderNames)
+    {
+        return _context.LibraryFolderIndexes
+            .Where(x => folderNames.Contains(x.FolderName))
+            .ToList();
     }
 }

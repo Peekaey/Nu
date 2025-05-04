@@ -7,6 +7,7 @@ using Nu_Models.DatabaseModels;
 using Nu_Models.DTOs;
 using Nu_Models.Enums;
 using Nu_Models.Extensions;
+using Nu_Models.Extensions.Interfaces;
 using Nu_Models.Results;
 
 namespace Nu_DataService.Services;
@@ -15,15 +16,17 @@ public class IndexingService : IIndexingService
 {
     private readonly ILogger<IndexingService> _logger;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMappingHelpers _mappingHelpers;
     private readonly ApplicationConfigurationSettings _applicationConfigurationSettings;
 
 
     public IndexingService (ILogger<IndexingService> logger, IUnitOfWork unitOfWork,
-        ApplicationConfigurationSettings applicationConfigurationSettings)
+        ApplicationConfigurationSettings applicationConfigurationSettings, IMappingHelpers mappingHelpers)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _applicationConfigurationSettings = applicationConfigurationSettings;
+        _mappingHelpers = mappingHelpers;
     }
 
     
@@ -141,6 +144,41 @@ public class IndexingService : IIndexingService
                 return ServiceResult.AsFailure("Error saving library index to database");
             }
             
+        }
+    }
+
+    public ServiceResult IndexPreviewThumbnails(List<PreviewThumbnailDTO> previewThumbnailDtos)
+    {
+        var allFiles = _unitOfWork.LibraryFileIndexRepository.GetAll().ToList();
+        var mappedPreviewThumbnailIndexes = _mappingHelpers.MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(previewThumbnailDtos, allFiles).ToList();
+        using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+        {
+            _unitOfWork.LibraryPreviewThumbnailIndexRepository.AddRange(mappedPreviewThumbnailIndexes);
+            _unitOfWork.SaveChanges();
+            
+            // Map Id Back to Parent
+            var updatedPreviewThumbnailIndexes = _unitOfWork.LibraryPreviewThumbnailIndexRepository.GetAll().ToList();
+            foreach (var updatedPreviewThumbnailIndex in updatedPreviewThumbnailIndexes)
+            {
+                var matchedFile = allFiles.FirstOrDefault(f => f.Id == updatedPreviewThumbnailIndex.LibraryFileIndexId);
+                if (matchedFile != null)
+                {
+                    matchedFile.LibraryPreviewThumbnailIndexId = updatedPreviewThumbnailIndex.Id;
+                }
+            }
+
+            _unitOfWork.SaveChanges();
+            
+            try
+            {
+                scope.Complete();
+                return ServiceResult.AsSuccess();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error saving library preview thumbnails to database");
+                return ServiceResult.AsFailure(e.Message);
+            }
         }
     }
 }

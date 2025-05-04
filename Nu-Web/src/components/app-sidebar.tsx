@@ -5,8 +5,7 @@ import {
     SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar.tsx";
-import {GetRootFolderPath} from "@/utilities/api-manager.ts";
-import {useEffect, useState} from "react";
+import {useGlobalContext} from "@/components/global-context-container.tsx";
 
 
 // Menu items.
@@ -39,22 +38,8 @@ const NuSidebarItems = [
 ]
 
 export function AppSidebar() {
-    const [rootFolderPath, setRootFolderPath] = useState<string>("");
+    const { rootFolderPath } = useGlobalContext();
 
-    useEffect(() => {
-        // Fetch the root folder path from the server
-        // TODO optimise so that it's not calling every single page refresh
-        async function fetchRootFolderPath() {
-            try {
-                const response = await GetRootFolderPath();
-                setRootFolderPath(response.data);
-            } catch (error) {
-                console.error("Error fetching root folder path:", error);
-            }
-        }
-
-        fetchRootFolderPath();
-    });
     return (
         <Sidebar>
             <SidebarContent className="flex flex-col h-full justify-between">

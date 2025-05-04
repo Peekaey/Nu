@@ -4,5 +4,5 @@ namespace Nu_Cache.Interfaces;
 
 public interface IBackgroundFileService
 {
-    Task<FileReaderServiceResult> GetParentStorageFiles(string rootFolderPath);
+    Task<FileReaderServiceResult> GetParentStorageFiles(string rootFolderPath, string? previewThumbnailSaveLocation = null);
 }

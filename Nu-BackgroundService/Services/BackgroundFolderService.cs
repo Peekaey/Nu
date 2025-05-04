@@ -17,7 +17,7 @@ public class BackgroundFolderService : IBackgroundFolderService
         _applicationConfigurationSettings = applicationConfigurationSettings;
     }
 
-public FolderReaderServiceResult GetStorageFolders(string rootFolderPath)
+public FolderReaderServiceResult GetStorageFolders(string rootFolderPath, string? previewThumbnailSaveLocation = null)
 {
     try
     {
@@ -61,7 +61,12 @@ public FolderReaderServiceResult GetStorageFolders(string rootFolderPath)
 
         folders.Add(rootFolder);
         var directories = Directory.GetDirectories(rootFolderPath, "*", SearchOption.AllDirectories);
-
+        
+        // Exclude the preview thumbnail save location
+        if (!string.IsNullOrEmpty(previewThumbnailSaveLocation))
+        {
+            directories = directories.Where(d => !d.Equals(previewThumbnailSaveLocation, StringComparison.OrdinalIgnoreCase)).ToArray();
+        }
         foreach (var directory in directories)
         {
             var lastFolderInDirectoryPath = directory.Substring(rootFolderPath.Length)

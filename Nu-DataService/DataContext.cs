@@ -15,4 +15,5 @@ public class DataContext : DbContext
     public DbSet<UserProfilePicture> UserProfilePictures { get; set; }
     public DbSet<LibraryFolderIndex> LibraryFolderIndexes { get; set; }
     public DbSet<LibraryFileIndex> LibraryFileIndexes { get; set; }
+    public DbSet<LibraryPreviewThumbnailIndex> LibraryPreviewThumbnailIndexes { get; set; }
 }

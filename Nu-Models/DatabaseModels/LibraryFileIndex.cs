@@ -19,6 +19,11 @@ public class LibraryFileIndex : IAuditable
     [ForeignKey("ParentFolderId")]
     public LibraryFolderIndex ParentFolder { get; set; }
     
+    public int? LibraryPreviewThumbnailIndexId { get; set; }
+    // Navigation property for image cache
+    [ForeignKey("LibraryPreviewThumbnailIndexId")]
+    public LibraryPreviewThumbnailIndex? LibraryPreviewThumbnailIndex { get; set; }
+    
     public DateTime CreatedDate { get; set; }
     public DateTime LastUpdatedDate { get; set; }
 }

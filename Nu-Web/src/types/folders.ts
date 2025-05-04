@@ -7,6 +7,7 @@ export interface LibraryFolderFilesResponseDTO {
     fileSize: number;
     fileCreatedAt: string;
     imageData: string;
+    serverImagePath: string;
 }
 
 export interface LibraryFolderResponseDTO {
@@ -19,5 +20,10 @@ export interface LibraryFolderResponseDTO {
 export interface LibraryFolderContentsResponseDTO {
     folders: LibraryFolderResponseDTO[];
     files: LibraryFolderFilesResponseDTO[];
-    folderPath: string;
+    folderPath: LibraryFolderPathChunk[];
+}
+
+export interface LibraryFolderPathChunk{
+    id: string;
+    folderName: string;
 }

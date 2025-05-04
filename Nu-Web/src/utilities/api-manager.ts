@@ -1,9 +1,9 @@
 import {UserAuthRequestDTO} from "@/types/user-registration.ts";
 import axios, {AxiosResponse} from "axios";
 
-
+// TODO Fix the hardcoding
 // const baseURL = 'http://localhost:5000';
-const baseURL = 'http://192.168.1.106:5000';
+const baseURL = 'http://192.168.1.165:5000';
 
 
 export async function SendUserRegistrationRequest(request: UserAuthRequestDTO): Promise<AxiosResponse> {
@@ -106,6 +106,38 @@ export async function GetRootFolderPath(): Promise<AxiosResponse> {
     const api = axios.create({baseURL});
     try {
         const response = await api.get("/api/v1/settings/rootfolderpath");
+        console.log("Full Response:", response);
+        console.log("Response Data:", response.data);
+        return response;
+    } catch (error) {
+        console.error("Error fetching library albums:", error);
+        throw error;
+    }
+}
+
+export async function GetImageData(id: string): Promise<AxiosResponse> {
+    const api = axios.create({baseURL});
+    try {
+        const response = await api.get("/api/v1/file/image/" + id);
+        console.log("Full Response:", response);
+        console.log("Response Data:", response.data);
+        return response;
+    } catch (error) {
+        console.error("Error fetching library albums:", error);
+        throw error;
+    }
+}
+
+export async function DownloadImage(id: string): Promise<AxiosResponse> {
+    const api = axios.create({
+        baseURL,
+        responseType: 'blob',
+        headers: {
+            'Accept': '*/*'
+        }
+    });
+    try {
+        const response = await api.get("/api/v1/file/download/" + id);
         console.log("Full Response:", response);
         console.log("Response Data:", response.data);
         return response;

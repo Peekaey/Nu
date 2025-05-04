@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 import {useEffect} from "react";
 import {GetRootFolderPath} from "@/utilities/api-manager.ts";
+import {LibraryFolderPathChunk} from "@/types/folders.ts";
 
 type GlobalContextContainer = {
     rootFolderPath: string;
-    currentFolderPath: string;
-    setCurrentFolderPathFromApp: (path: string) => void;
+    currentFolderPath: LibraryFolderPathChunk[];
+    setCurrentFolderPathFromApp: (path: LibraryFolderPathChunk[]) => void;
 
 }
 
@@ -13,21 +14,25 @@ const GlobalContext = createContext<GlobalContextContainer | null>(null);
 
 export function GlobalContextProvider({children}: {children: ReactNode}) {
     const [rootFolderPath, setRootFolderPath] = useState<string>("");
-    const [currentFolderPath, setCurrentFolderPath] = useState<string>("");
+    const [currentFolderPath, setCurrentFolderPath] = useState<LibraryFolderPathChunk[]>([]);
+    const [isInitialized, setIsInitialized] = useState(false);
 
-    // TODO Look at making this a one time call to avoid redundant calls
+
     useEffect(() => {
-        async function fetchRootFolderPath() {
-            try {
-                const response = await GetRootFolderPath();
-                setRootFolderPath(response.data);
-            } catch (error) {
-                console.error("Error fetching root folder path:", error);
+        if (!isInitialized && !rootFolderPath) {
+            async function fetchRootFolderPath() {
+                try {
+                    const response = await GetRootFolderPath();
+                    setRootFolderPath(response.data);
+                    setIsInitialized(true);
+                } catch (error) {
+                    console.error("Error fetching root folder path:", error);
+                }
             }
-        }
 
-        fetchRootFolderPath();
-    }, []);
+            fetchRootFolderPath();
+        }
+    }, [isInitialized, rootFolderPath]);
 
     return (
         <GlobalContext.Provider value={{ rootFolderPath, currentFolderPath, setCurrentFolderPathFromApp: setCurrentFolderPath }}>            {children}

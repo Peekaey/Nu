@@ -41,7 +41,8 @@ export function AlbumView() {
                 {files.map((file, index) => (
                     <ImageCard
                         key={index}
-                        src={file.imageData}
+                        id={file.id}
+                        src={file.serverImagePath}
                         alt={"Image"}
                         title={file.fileName || "Untitled"}
                         description={file.filePath || "No description available"}

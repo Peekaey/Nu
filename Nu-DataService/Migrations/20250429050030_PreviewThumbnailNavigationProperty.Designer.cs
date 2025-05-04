@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nu_DataService;
@@ -11,9 +12,11 @@ using Nu_DataService;
 namespace Nu_DataService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250429050030_PreviewThumbnailNavigationProperty")]
+    partial class PreviewThumbnailNavigationProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,9 +104,6 @@ namespace Nu_DataService.Migrations
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("LibraryPreviewThumbnailIndexId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("ParentFolderId")
                         .HasColumnType("integer");
 
@@ -111,9 +111,6 @@ namespace Nu_DataService.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("LibraryPreviewThumbnailIndexId")
-                        .IsUnique();
 
                     b.HasIndex("ParentFolderId");
 
@@ -153,47 +150,6 @@ namespace Nu_DataService.Migrations
                     b.HasIndex("ParentFolderId");
 
                     b.ToTable("LibraryFolderIndexes");
-                });
-
-            modelBuilder.Entity("Nu_Models.DatabaseModels.LibraryPreviewThumbnailIndex", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("DirectoryName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastUpdatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("LibraryFileIndexId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("SystemCreationTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("LibraryPreviewThumbnailIndexes");
                 });
 
             modelBuilder.Entity("Nu_Models.DatabaseModels.UserProfile", b =>
@@ -259,15 +215,9 @@ namespace Nu_DataService.Migrations
 
             modelBuilder.Entity("Nu_Models.DatabaseModels.LibraryFileIndex", b =>
                 {
-                    b.HasOne("Nu_Models.DatabaseModels.LibraryPreviewThumbnailIndex", "LibraryPreviewThumbnailIndex")
-                        .WithOne("LibraryFileIndex")
-                        .HasForeignKey("Nu_Models.DatabaseModels.LibraryFileIndex", "LibraryPreviewThumbnailIndexId");
-
                     b.HasOne("Nu_Models.DatabaseModels.LibraryFolderIndex", "ParentFolder")
                         .WithMany("LibraryFiles")
                         .HasForeignKey("ParentFolderId");
-
-                    b.Navigation("LibraryPreviewThumbnailIndex");
 
                     b.Navigation("ParentFolder");
                 });
@@ -303,12 +253,6 @@ namespace Nu_DataService.Migrations
                     b.Navigation("ChildFolders");
 
                     b.Navigation("LibraryFiles");
-                });
-
-            modelBuilder.Entity("Nu_Models.DatabaseModels.LibraryPreviewThumbnailIndex", b =>
-                {
-                    b.Navigation("LibraryFileIndex")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

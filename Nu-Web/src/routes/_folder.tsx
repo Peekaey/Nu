@@ -14,11 +14,12 @@ import {useGlobalContext} from "@/components/global-context-container.tsx";
 
 
 export function FolderView() {
+    const { setCurrentFolderPathFromApp } = useGlobalContext();
+
     const { id } = useParams();
     const [files, setFiles] = useState<LibraryFolderFilesResponseDTO[]>([]);
     const [folders, setFolders] = useState<LibraryAlbumsResponseDTO[]>([]);
     const [loading, setLoading] = useState(true);
-    const { setCurrentFolderPathFromApp } = useGlobalContext();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,7 +34,6 @@ export function FolderView() {
             setFolders([]);
             try {
                 const response = await GetLibraryFolderContents(id);
-                console.log("Full Response:", response);
                 setFolders(response.data.folders);
                 setFiles(response.data.files);
                 setCurrentFolderPathFromApp(response.data.folderPath);
@@ -55,7 +55,7 @@ export function FolderView() {
         <div id="library-page" className="w-full">
             {loading && <LoadingAlert />}
             {files.length === 0 && folders.length === 0 && !loading && <NoContentsAlert />}
-            {!loading && FolderBreadcrumb()}
+            {!loading && <FolderBreadcrumb/>}
             <div id="library-body-content" className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-6 gap-4 pt-2 pb-4 pr-4 pl-9">
                 {folders.map((folder) => (
                     <AlbumCard
@@ -71,7 +71,8 @@ export function FolderView() {
                 {files.map((file, index) => (
                     <ImageCard
                         key={index}
-                        src={file.imageData}
+                        id={file.id}
+                        src={file.serverImagePath}
                         alt={"Image"}
                         title={file.fileName || "Untitled"}
                         description={file.filePath || "No description available"}

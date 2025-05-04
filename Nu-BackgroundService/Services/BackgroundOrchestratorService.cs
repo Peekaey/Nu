@@ -1,6 +1,8 @@
 ﻿using Nu_Cache.Interfaces;
 using Nu_DataService.Interfaces;
 using Nu_Models.DTOs;
+using Nu_Models.Extensions;
+using Nu_Models.Extensions.Interfaces;
 using Nu_Models.Results;
 
 namespace Nu_Cache.Services;
@@ -9,16 +11,24 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
 {
     private readonly IBackgroundFileService _backgroundFileService;
     private readonly IBackgroundFolderService _backgroundFolderService;
+    private readonly IBackgroundResizeService _backgroundResizeService;
     private readonly IIndexingService _indexingService;
+    private readonly IFilePathExtensions _filePathExtensions;
+    private readonly ILibraryService _libraryService;
+    
     private readonly ILogger<BackgroundOrchestratorService> _logger;
 
     public BackgroundOrchestratorService(IBackgroundFileService backgroundFileService, IBackgroundFolderService backgroundFolderService,
-        IIndexingService indexingService, ILogger<BackgroundOrchestratorService> logger)
+        IIndexingService indexingService, IBackgroundResizeService backgroundResizeService , IFilePathExtensions filePathExtensions,
+        ILibraryService libraryService, ILogger<BackgroundOrchestratorService> logger)
     {
         _backgroundFileService = backgroundFileService;
         _backgroundFolderService = backgroundFolderService;
+        _backgroundResizeService = backgroundResizeService;
         _logger = logger;
         _indexingService = indexingService;
+        _filePathExtensions = filePathExtensions;
+        _libraryService = libraryService;
     }
 
     public async Task<ServiceResult> IndexLibraryContents(string rootFolderPath)
@@ -28,16 +38,18 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
         if (folderExists == false)
         {
             return ServiceResult.AsFailure("Root Folder Does Not Exist");
-        }
+        } 
         
-        var foldersResult = _backgroundFolderService.GetStorageFolders(rootFolderPath);
+        var previewThumbnailSaveLocation = _filePathExtensions.GeneratePreviewThumbnailSaveLocation(rootFolderPath);
+        
+        var foldersResult = _backgroundFolderService.GetStorageFolders(rootFolderPath, previewThumbnailSaveLocation);
 
         if (foldersResult.Success == false)
         {
             return ServiceResult.AsFailure(foldersResult.Error);
         }
 
-        var filesResult = await _backgroundFileService.GetParentStorageFiles(rootFolderPath);
+        var filesResult = await _backgroundFileService.GetParentStorageFiles(rootFolderPath, previewThumbnailSaveLocation);
         if (filesResult.Success == false)
         {
             return ServiceResult.AsFailure(filesResult.Error);
@@ -48,6 +60,20 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
         if (updateIndexResult.Success == false)
         {
             return ServiceResult.AsFailure(updateIndexResult.Error);
+        }
+        
+        var resizeResult = _backgroundResizeService.GeneratePreviewThumbnails(filesResult.Files, rootFolderPath);
+        
+        if (resizeResult.Success == false)
+        {
+            return ServiceResult.AsFailure(resizeResult.Error);
+        }
+        
+        var indexPreviewThumbnailResult = _indexingService.IndexPreviewThumbnails(resizeResult.Files);
+        
+        if (indexPreviewThumbnailResult.Success == false)
+        {
+            return ServiceResult.AsFailure(indexPreviewThumbnailResult.Error);
         }
         
         return ServiceResult.AsSuccess();

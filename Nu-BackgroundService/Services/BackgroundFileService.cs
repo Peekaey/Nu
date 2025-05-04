@@ -19,7 +19,7 @@ public class BackgroundFileService : IBackgroundFileService
         _logger = logger;
     }
 
-    public async Task<FileReaderServiceResult> GetParentStorageFiles(string rootFolderPath)
+    public async Task<FileReaderServiceResult> GetParentStorageFiles(string rootFolderPath, string? previewThumbnailSaveLocation = null)
     {
         rootFolderPath = rootFolderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         var replacedRootFolderPath = rootFolderPath.Replace("\\", "/");
@@ -62,7 +62,7 @@ public class BackgroundFileService : IBackgroundFileService
 
             var fileDtos = Directory.EnumerateFiles(rootMasterFolderPath, "*.*", SearchOption.AllDirectories)
                 .AsParallel()
-                .Where(file => acceptedFileTypes.Contains(Path.GetExtension(file)))
+                .Where(file => acceptedFileTypes.Contains(Path.GetExtension(file)) && !file.Contains(previewThumbnailSaveLocation ?? "Nu-PreviewThumbnails", StringComparison.OrdinalIgnoreCase))
                 .Select(file =>
                 {
                     var fileInfo = new FileInfo(file);

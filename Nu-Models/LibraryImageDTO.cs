@@ -8,6 +8,7 @@ public class LibraryImageDTO
     public string FileType { get; set; }
     public double FileSizeMb { get; set; }
     public DateTime SystemCreationTime { get; set; }
-    // Base 64 for now - optimise later
-    public string ImageData { get; set; }
+    public string ServerImagePath { get; set; }
+    
+    public int? PreviewThumbNailId { get; set; }
 }

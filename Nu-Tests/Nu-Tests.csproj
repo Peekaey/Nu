@@ -28,4 +28,8 @@
       <ProjectReference Include="..\Nu-BusinessService\Nu-BusinessService.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Nu-Models.Tests\" />
+    </ItemGroup>
+
 </Project>

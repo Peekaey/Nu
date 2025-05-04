@@ -17,5 +17,6 @@ public interface ILibraryFolderIndexRepository
     List<LibraryFolderIndex> GetAll();
     LibraryFolderIndex? GetLibraryRootFolder();
     LibraryFolderIndex? GetLibraryFolderWithChildren(int id);
+    IList<LibraryFolderIndex> GetFoldersByFolderName(List<string> folderNames);
 
 }
