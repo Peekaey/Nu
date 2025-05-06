@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
         {
             return new BadRequestResult();
         }
-        bool requestValid = _apiRequestValidationHelpers.ValidateLoginRequest(request);
+        var requestValid = _apiRequestValidationHelpers.ValidateLoginRequest(request);
         
         if (!requestValid)
         {
@@ -74,7 +74,7 @@ public class AuthController : ControllerBase
         return new OkObjectResult("You have authenticated successfully.");
     }
     
-
+    // TODO Add Endpoint Verification
     [HttpPost("register", Name = "register")]
     public IActionResult Register([FromBody] RegisterRequest request)
     {
@@ -82,7 +82,7 @@ public class AuthController : ControllerBase
         {
             return new BadRequestResult();
         }
-        bool requestValid = _apiRequestValidationHelpers.ValidateRegisterRequest(request);
+        var requestValid = _apiRequestValidationHelpers.ValidateRegisterRequest(request);
         
         if (!requestValid)
         {

@@ -33,36 +33,9 @@ public class IndexingService : IIndexingService
     public ServiceResult IndexLibraryContents(List<FolderDTO> folders, List<FileDTO> files)
     {
         // TODO Extract Mapping To Separate Extension Helper
-        var libraryFolders = folders.Select(f => new LibraryFolderIndex
-        {
-            FolderName = f.FolderName,
-            FolderPath = f.FolderPath,
-            FolderLevel = (int)f.FolderLevel
-        }).ToList();
-        
+        var libraryFolders = _mappingHelpers.MapFolderDtoToLibraryFolderIndex(folders);
 
-        // TODO Simplify
-        foreach (var folder in libraryFolders)
-        {
-            folder.SetCreatedDate();
-        }
-
-        var libraryFiles = files.Select(f => new LibraryFileIndex
-            {
-                SystemCreationTime = f.CreationTime,
-                DirectoryName = f.DirectoryName,
-                FileType = f.Extension,
-                FullName = f.FullName,
-                FileName = f.FileName,
-                FileSizeInMB = f.FileSizeInMB
-            }).ToList();
-        
-        // TODO Simplify
-        foreach (var file in libraryFiles)
-        {
-            file.SetCreatedDate();
-            file.SystemCreationTime = DateTimeExtensions.ConvertDateTimeToUtc(file.SystemCreationTime);
-        }
+        var libraryFiles = _mappingHelpers.MapFileDtoToLibraryFileIndex(files);
 
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -104,8 +77,6 @@ public class IndexingService : IIndexingService
                 {
                     folder.ParentFolder = parentFolder;
                 }
-                
-                
             }
             
             _unitOfWork.SaveChanges();
@@ -149,15 +120,16 @@ public class IndexingService : IIndexingService
 
     public ServiceResult IndexPreviewThumbnails(List<PreviewThumbnailDTO> previewThumbnailDtos)
     {
-        var allFiles = _unitOfWork.LibraryFileIndexRepository.GetAll().ToList();
-        var mappedPreviewThumbnailIndexes = _mappingHelpers.MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(previewThumbnailDtos, allFiles).ToList();
+        var allFiles = _unitOfWork.LibraryFileIndexRepository.GetAll();
+        var mappedPreviewThumbnailIndexes =
+            _mappingHelpers.MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(previewThumbnailDtos, allFiles);
         using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
         {
             _unitOfWork.LibraryPreviewThumbnailIndexRepository.AddRange(mappedPreviewThumbnailIndexes);
             _unitOfWork.SaveChanges();
             
             // Map Id Back to Parent
-            var updatedPreviewThumbnailIndexes = _unitOfWork.LibraryPreviewThumbnailIndexRepository.GetAll().ToList();
+            var updatedPreviewThumbnailIndexes = _unitOfWork.LibraryPreviewThumbnailIndexRepository.GetAll();
             foreach (var updatedPreviewThumbnailIndex in updatedPreviewThumbnailIndexes)
             {
                 var matchedFile = allFiles.FirstOrDefault(f => f.Id == updatedPreviewThumbnailIndex.LibraryFileIndexId);

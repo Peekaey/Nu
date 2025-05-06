@@ -16,11 +16,9 @@ public class AccountRepository : IAccountRepository
         _logger = logger;
     }
     
-    public async Task<Account> AddAsync(Account account)
+    public async Task AddAsync(Account account)
     {
         await _context.Accounts.AddAsync(account);
-        await _context.SaveChangesAsync();
-        return account;
     }
     
     public void Add(Account account)
@@ -28,23 +26,9 @@ public class AccountRepository : IAccountRepository
         _context.Accounts.Add(account);
     }
     
-    public async Task<Account> RemoveAsync(Account account)
-    {
-        _context.Accounts.Remove(account);
-        await _context.SaveChangesAsync();
-        return account;
-    }
-    
     public void Remove(Account account)
     {
         _context.Accounts.Remove(account);
-    }
-    
-    public async Task<Account> UpdateAsync(Account account)
-    {
-        _context.Accounts.Update(account);
-        await _context.SaveChangesAsync();
-        return account;
     }
     
     public void Update(Account account)
@@ -52,12 +36,12 @@ public class AccountRepository : IAccountRepository
         _context.Accounts.Update(account);
     }
     
-    public async Task<Account> GetAsync(int id)
+    public async Task<Account?> GetAsync(int id)
     {
         return await _context.Accounts.FirstOrDefaultAsync(x => x.Id == id);
     }
     
-    public Account Get(int id)
+    public Account? Get(int id)
     {
         return _context.Accounts.FirstOrDefault(x => x.Id == id);
     }

@@ -3,7 +3,7 @@ using Nu_Apis.Interfaces;
 
 namespace Nu_Apis.Helpers;
 
-public class ApiApiRequestValidationHelpers : IApiRequestValidationHelpers
+public class ApiRequestValidationHelpers : IApiRequestValidationHelpers
 {
     // TODO Prevent SQL Injection
     public bool ValidateRegisterRequest(RegisterRequest request)

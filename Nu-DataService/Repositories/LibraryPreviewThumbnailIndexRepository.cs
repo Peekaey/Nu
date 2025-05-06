@@ -17,11 +17,9 @@ public class LibraryPreviewThumbnailIndexRepository : ILibraryPreviewThumbnailIn
         _logger = logger;
     }
     
-    public async Task<LibraryPreviewThumbnailIndex> AddAsync(LibraryPreviewThumbnailIndex previewThumbnailIndex)
+    public async Task AddAsync(LibraryPreviewThumbnailIndex previewThumbnailIndex)
     {
         await _context.LibraryPreviewThumbnailIndexes.AddAsync(previewThumbnailIndex);
-        await _context.SaveChangesAsync();
-        return previewThumbnailIndex;
     }
     
     public void Add(LibraryPreviewThumbnailIndex previewThumbnailIndex)
@@ -29,23 +27,14 @@ public class LibraryPreviewThumbnailIndexRepository : ILibraryPreviewThumbnailIn
         _context.LibraryPreviewThumbnailIndexes.Add(previewThumbnailIndex);
     }
     
-    public async Task<List<LibraryPreviewThumbnailIndex>> AddRangeAsync(List<LibraryPreviewThumbnailIndex> previewThumbnailIndexes)
+    public async Task AddRangeAsync(List<LibraryPreviewThumbnailIndex> previewThumbnailIndexes)
     {
         await _context.LibraryPreviewThumbnailIndexes.AddRangeAsync(previewThumbnailIndexes);
-        await _context.SaveChangesAsync();
-        return previewThumbnailIndexes;
     }
     
-    public void AddRange(List<LibraryPreviewThumbnailIndex> previewThumbnailIndexes)
+    public void AddRange(IEnumerable<LibraryPreviewThumbnailIndex> previewThumbnailIndexes)
     {
         _context.LibraryPreviewThumbnailIndexes.AddRange(previewThumbnailIndexes);
-    }
-    
-    public async Task<LibraryPreviewThumbnailIndex> RemoveAsync(LibraryPreviewThumbnailIndex previewThumbnailIndex)
-    {
-        _context.LibraryPreviewThumbnailIndexes.Remove(previewThumbnailIndex);
-        await _context.SaveChangesAsync();
-        return previewThumbnailIndex;
     }
     
     public void Remove(LibraryPreviewThumbnailIndex previewThumbnailIndex)
@@ -53,24 +42,17 @@ public class LibraryPreviewThumbnailIndexRepository : ILibraryPreviewThumbnailIn
         _context.LibraryPreviewThumbnailIndexes.Remove(previewThumbnailIndex);
     }
     
-    public async Task<LibraryPreviewThumbnailIndex> UpdateAsync(LibraryPreviewThumbnailIndex previewThumbnailIndex)
-    {
-        _context.LibraryPreviewThumbnailIndexes.Update(previewThumbnailIndex);
-        await _context.SaveChangesAsync();
-        return previewThumbnailIndex;
-    }
-    
     public void Update(LibraryPreviewThumbnailIndex previewThumbnailIndex)
     {
         _context.LibraryPreviewThumbnailIndexes.Update(previewThumbnailIndex);
     }
     
-    public async Task<LibraryPreviewThumbnailIndex> GetAsync(int id)
+    public async Task<LibraryPreviewThumbnailIndex?> GetAsync(int id)
     {
         return await _context.LibraryPreviewThumbnailIndexes.FirstOrDefaultAsync(x => x.Id == id);
     }
     
-    public LibraryPreviewThumbnailIndex Get(int id)
+    public LibraryPreviewThumbnailIndex? Get(int id)
     {
         return _context.LibraryPreviewThumbnailIndexes.FirstOrDefault(x => x.Id == id);
     }

@@ -5,7 +5,9 @@ namespace Nu_Models.Extensions.Interfaces;
 
 public interface IMappingHelpers
 {
-    IList<LibraryPreviewThumbnailIndex> MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(
-        List<PreviewThumbnailDTO> previewThumbnailDtos, List<LibraryFileIndex> fileIndexes);
-    IList<LibraryFolderPathChunk> MapFolderPathToChunks(string folderPath);
+    IEnumerable<LibraryPreviewThumbnailIndex> MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(
+        IEnumerable<PreviewThumbnailDTO> previewThumbnailDtos, IEnumerable<LibraryFileIndex> fileIndexes);
+    IEnumerable<LibraryFolderPathChunk> MapFolderPathToChunks(string folderPath);
+    IEnumerable<LibraryFolderIndex> MapFolderDtoToLibraryFolderIndex(List<FolderDTO> folders);
+    IEnumerable<LibraryFileIndex> MapFileDtoToLibraryFileIndex(List<FileDTO> files);
 }

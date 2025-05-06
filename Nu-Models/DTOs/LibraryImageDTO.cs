@@ -1,4 +1,4 @@
-﻿namespace Nu_Models;
+﻿namespace Nu_Models.DTOs;
 
 public class LibraryImageDTO
 {

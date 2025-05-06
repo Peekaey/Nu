@@ -16,11 +16,10 @@ public class LibraryFolderIndexRepository : ILibraryFolderIndexRepository
         _logger = logger;
     }
     
-    public async Task<LibraryFolderIndex> AddAsync(LibraryFolderIndex fileIndex)
+    public async Task AddAsync(LibraryFolderIndex fileIndex)
     {
         await _context.LibraryFolderIndexes.AddAsync(fileIndex);
-        await _context.SaveChangesAsync();
-        return fileIndex;
+
     }
     
     public void Add(LibraryFolderIndex fileIndex)
@@ -28,35 +27,18 @@ public class LibraryFolderIndexRepository : ILibraryFolderIndexRepository
         _context.LibraryFolderIndexes.Add(fileIndex);
     }
     
-    public async Task<List<LibraryFolderIndex>> AddRangeAsync(List<LibraryFolderIndex> folderIndexes)
+    public async Task AddRangeAsync(List<LibraryFolderIndex> folderIndexes)
     {
         await _context.LibraryFolderIndexes.AddRangeAsync(folderIndexes);
-        await _context.SaveChangesAsync();
-        return folderIndexes;
     }
     
     public void AddRange(List<LibraryFolderIndex> folderIndexes)
     {
         _context.LibraryFolderIndexes.AddRange(folderIndexes);
     }
-    
-    public async Task<LibraryFolderIndex> RemoveAsync(LibraryFolderIndex fileIndex)
-    {
-        _context.LibraryFolderIndexes.Remove(fileIndex);
-        await _context.SaveChangesAsync();
-        return fileIndex;
-    }
-    
     public void Remove(LibraryFolderIndex fileIndex)
     {
         _context.LibraryFolderIndexes.Remove(fileIndex);
-    }
-    
-    public async Task<LibraryFolderIndex> UpdateAsync(LibraryFolderIndex fileIndex)
-    {
-        _context.LibraryFolderIndexes.Update(fileIndex);
-        await _context.SaveChangesAsync();
-        return fileIndex;
     }
     
     public void Update(LibraryFolderIndex fileIndex)
@@ -64,19 +46,19 @@ public class LibraryFolderIndexRepository : ILibraryFolderIndexRepository
         _context.LibraryFolderIndexes.Update(fileIndex);
     }
     
-    public async Task<LibraryFolderIndex> GetAsync(int id)
+    public async Task<LibraryFolderIndex?> GetAsync(int id)
     {
         return await _context.LibraryFolderIndexes.FirstOrDefaultAsync(x => x.Id == id);
     }
     
-    public LibraryFolderIndex Get(int id)
+    public LibraryFolderIndex? Get(int id)
     {
         return _context.LibraryFolderIndexes.FirstOrDefault(x => x.Id == id);
     }
     
-    public List<LibraryFolderIndex> GetAll()
+    public IEnumerable<LibraryFolderIndex> GetAll()
     {
-        return _context.LibraryFolderIndexes.ToList();
+        return _context.LibraryFolderIndexes;
     }
     
     public LibraryFolderIndex? GetLibraryRootFolder()
@@ -98,7 +80,7 @@ public class LibraryFolderIndexRepository : ILibraryFolderIndexRepository
         
     }
 
-    public IList<LibraryFolderIndex> GetFoldersByFolderName(List<string> folderNames)
+    public IEnumerable<LibraryFolderIndex> GetFoldersByFolderName(List<string> folderNames)
     {
         return _context.LibraryFolderIndexes
             .Where(x => folderNames.Contains(x.FolderName))

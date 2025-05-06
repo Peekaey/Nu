@@ -8,10 +8,10 @@ namespace Nu_DataService.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly ILogger<IAccountService> _logger;
+    private readonly ILogger<AccountService> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AccountService(ILogger<IAccountService> logger, IUnitOfWork unitOfWork)
+    public AccountService(ILogger<AccountService> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;

@@ -11,38 +11,52 @@ public class FileController : ControllerBase
 {
     private readonly ILogger<FileController> _logger;
     private readonly IApiRequestValidationHelpers _apiRequestValidationHelpers;
-    private readonly ILibraryBusinessService _libraryBusinessService;
+    private readonly ILibraryBusinessFileService _libraryBusinessFileService;
 
     public FileController(ILogger<FileController> logger, IApiRequestValidationHelpers apiRequestValidationHelpers,
-        ILibraryBusinessService libraryBusinessService)
+        ILibraryBusinessFileService libraryBusinessFileService)
     {
         _logger = logger;
         _apiRequestValidationHelpers = apiRequestValidationHelpers;
-        _libraryBusinessService = libraryBusinessService;
+        _libraryBusinessFileService = libraryBusinessFileService;
     }
 
+    // TODO Add Endpoint Verification
     [HttpGet("image/{id}")]
     public IActionResult GetOriginalImage(int id)
     {
-        var file = _libraryBusinessService.GetImageById(id);
-        return Ok(file);
+        var file = _libraryBusinessFileService.GetImagePathById(id);
+
+        if (!file.Success)
+        {
+            if (file.StatusCode == 404)
+            {
+                return NotFound(file.ErrorMessage);
+            }
+            else
+            {
+                return StatusCode(500, "Internal error retrieving image");
+            }
+        }
+        return Ok(file.Data);
     }
 
     [HttpGet("download/{id}")]
     public IActionResult DownloadFile(int id)
     {
-        try
+        var file = _libraryBusinessFileService.DownloadFile(id);
+        
+        if (!file.Success)
         {
-            return _libraryBusinessService.DownloadFile(id);
+            if (file.StatusCode == 404)
+            {
+                return NotFound(file.ErrorMessage);
+            }
+            else
+            {
+                return StatusCode(500, "Internal error retrieving file");
+            }
         }
-        catch (FileNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error downloading file {Id}", id);
-            return StatusCode(500, "Error downloading file");
-        }
+        return Ok(file.Data);
     }
 }

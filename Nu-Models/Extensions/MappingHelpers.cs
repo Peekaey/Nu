@@ -17,7 +17,7 @@ public class MappingHelpers : IMappingHelpers
         _logger = logger;
         _applicationConfigurationSettings = applicationConfigurationSettings;
     }
-    public IList<LibraryPreviewThumbnailIndex> MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(List<PreviewThumbnailDTO> previewThumbnailDtos, List<LibraryFileIndex> fileIndexes)
+    public IEnumerable<LibraryPreviewThumbnailIndex> MapPreviewThumbnailDtoToLibraryPreviewThumbnailIndex(IEnumerable<PreviewThumbnailDTO> previewThumbnailDtos, IEnumerable<LibraryFileIndex> fileIndexes)
     {
         var previewThumbnailIndexes = new List<LibraryPreviewThumbnailIndex>();
 
@@ -54,7 +54,7 @@ public class MappingHelpers : IMappingHelpers
         return previewThumbnailIndexes;
     }
 
-    public IList<LibraryFolderPathChunk> MapFolderPathToChunks(string folderPath)
+    public IEnumerable<LibraryFolderPathChunk> MapFolderPathToChunks(string folderPath)
     {
         folderPath = folderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Replace("\\", "/");
         folderPath = folderPath.Replace(_applicationConfigurationSettings.NormalisedRootFolderPath, string.Empty);
@@ -73,4 +73,33 @@ public class MappingHelpers : IMappingHelpers
         libraryFolderPathChunks.AddRange(chunks);
         return libraryFolderPathChunks;
     }
+
+    public IEnumerable<LibraryFolderIndex> MapFolderDtoToLibraryFolderIndex(List<FolderDTO> folders)
+    {
+        return folders.Select(f => new LibraryFolderIndex
+        {
+            FolderName = f.FolderName,
+            FolderPath = f.FolderPath,
+            FolderLevel = (int)f.FolderLevel,
+            CreatedDate = DateTime.UtcNow,
+            LastUpdatedDate = DateTime.UtcNow
+        });
+    }
+
+    public IEnumerable<LibraryFileIndex> MapFileDtoToLibraryFileIndex(List<FileDTO> files)
+    {
+        return files.Select(f => new LibraryFileIndex
+        {
+            DirectoryName = f.DirectoryName,
+            FileType = f.Extension,
+            FullName = f.FullName,
+            FileName = f.FileName,
+            FileSizeInMB = f.FileSizeInMB,
+            CreatedDate = DateTime.UtcNow,
+            LastUpdatedDate = DateTime.UtcNow,
+            SystemCreationTime = DateTimeExtensions.ConvertDateTimeToUtc(f.CreationTime)
+        });
+    }
+    
+    
 }

@@ -12,22 +12,21 @@ public class SettingsController : ControllerBase
 {
     private readonly ILogger<AuthController> _logger;
     private readonly IApiRequestValidationHelpers _apiRequestValidationHelpers;
-    private readonly ILibraryBusinessService _libraryBusinessService;
+    private readonly ISettingsBusinessService _settingsBusinessService;
     
     public SettingsController(ILogger<AuthController> logger, IApiRequestValidationHelpers apiRequestValidationHelpers,
-        ILibraryBusinessService libraryBusinessService)
+        ISettingsBusinessService settingsBusinessService)
     {
         _logger = logger;
         _apiRequestValidationHelpers = apiRequestValidationHelpers;
-        _libraryBusinessService = libraryBusinessService;
+        _settingsBusinessService = settingsBusinessService;
     }
 
     [HttpGet("rootfolderpath")]
     public IActionResult GetRootFolderPath()
     {
-        var rootFolderPath = _libraryBusinessService.GetRootFolderPath();
+        var rootFolderPath = _settingsBusinessService.GetRootFolderPath();
         return Ok(rootFolderPath);
-        
     }
     
 }

@@ -195,14 +195,12 @@ public class Program
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         
-        services.AddSingleton<IApiRequestValidationHelpers, ApiApiRequestValidationHelpers>();
+        services.AddSingleton<IApiRequestValidationHelpers, ApiRequestValidationHelpers>();
         services.AddSingleton<IUserProfileService, UserProfileService>();
         services.AddSingleton<IUserProfilePictureService, UserProfilePictureService>();
         services.AddScoped<IAccountService, AccountService>();
-        services.AddSingleton<IAuthenticationBusinessService, AuthenticationBusinessService>();
         services.AddSingleton<IBackgroundFolderService, BackgroundFolderService>();
         services.AddSingleton<IBackgroundFileService, BackgroundFileService>();
-        services.AddSingleton<ILibraryBusinessFileService, LibraryBusinessFileService>();
         services.AddSingleton<FilePathExtensions>();
         services.AddSingleton<IFilePathExtensions, FilePathExtensions>();
         services.AddSingleton<IBackgroundResizeService, BackgroundResizeService>();
@@ -233,8 +231,11 @@ public class Program
         services.AddScoped<IIndexingService, IndexingService>();
         services.AddScoped<IBackgroundOrchestratorService, BackgroundOrchestratorService>();
         services.AddScoped<IAccountBusinessService, AccountBusinessService>();
-        services.AddScoped<ILibraryBusinessService, LibraryBusinessService>();
-        services.AddScoped<ILibraryService, LibraryService>();
+        services.AddScoped<ILibraryFolderService, LibraryFolderService>();
+        services.AddScoped<ILibraryFileService, LibraryFileService>();
+        services.AddScoped<ILibraryBusinessFileService, LibraryBusinessFileService>();
+        services.AddScoped<ILibraryBusinessFolderService, LibraryBusinessFolderService>();
+        services.AddScoped<ISettingsBusinessService, SettingsBusinessService>();
 
         
         // Treats all controllers like services and validates their dependencies

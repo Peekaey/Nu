@@ -14,13 +14,12 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
     private readonly IBackgroundResizeService _backgroundResizeService;
     private readonly IIndexingService _indexingService;
     private readonly IFilePathExtensions _filePathExtensions;
-    private readonly ILibraryService _libraryService;
     
     private readonly ILogger<BackgroundOrchestratorService> _logger;
 
     public BackgroundOrchestratorService(IBackgroundFileService backgroundFileService, IBackgroundFolderService backgroundFolderService,
         IIndexingService indexingService, IBackgroundResizeService backgroundResizeService , IFilePathExtensions filePathExtensions,
-        ILibraryService libraryService, ILogger<BackgroundOrchestratorService> logger)
+        ILogger<BackgroundOrchestratorService> logger)
     {
         _backgroundFileService = backgroundFileService;
         _backgroundFolderService = backgroundFolderService;
@@ -28,11 +27,11 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
         _logger = logger;
         _indexingService = indexingService;
         _filePathExtensions = filePathExtensions;
-        _libraryService = libraryService;
     }
 
     public async Task<ServiceResult> IndexLibraryContents(string rootFolderPath)
     {
+        _logger.LogInformation("Start of IndexLibraryContents in BackgroundOrchestratorService");
         var folderExists = _backgroundFolderService.FolderExists(rootFolderPath);
 
         if (folderExists == false)
@@ -48,12 +47,15 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
         {
             return ServiceResult.AsFailure(foldersResult.Error);
         }
+        _logger.LogInformation("Folders Found: {FoldersCount}", foldersResult.Folders.Count);
 
         var filesResult = await _backgroundFileService.GetParentStorageFiles(rootFolderPath, previewThumbnailSaveLocation);
         if (filesResult.Success == false)
         {
             return ServiceResult.AsFailure(filesResult.Error);
         }
+        
+        _logger.LogInformation("Files Found: {FilesCount}", filesResult.Files.Count);
         
         var updateIndexResult = _indexingService.IndexLibraryContents(foldersResult.Folders, filesResult.Files);
         
@@ -62,6 +64,8 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
             return ServiceResult.AsFailure(updateIndexResult.Error);
         }
         
+        _logger.LogInformation("Folder and Files Indexed Successfully");
+        
         var resizeResult = _backgroundResizeService.GeneratePreviewThumbnails(filesResult.Files, rootFolderPath);
         
         if (resizeResult.Success == false)
@@ -69,12 +73,16 @@ public class BackgroundOrchestratorService : IBackgroundOrchestratorService
             return ServiceResult.AsFailure(resizeResult.Error);
         }
         
+        _logger.LogInformation("Preview Thumbnails Generated Successfully");
+        
         var indexPreviewThumbnailResult = _indexingService.IndexPreviewThumbnails(resizeResult.Files);
         
         if (indexPreviewThumbnailResult.Success == false)
         {
             return ServiceResult.AsFailure(indexPreviewThumbnailResult.Error);
         }
+        
+        _logger.LogInformation("Preview Thumbnails Indexed Successfully");
         
         return ServiceResult.AsSuccess();
         
